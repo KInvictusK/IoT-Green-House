@@ -23,7 +23,7 @@ The structural prototype was engineered using a contemporary arched tunnel form-
 
 | Internal Layout Overview | External Reservoir & Assembly |
 | :---: | :---: |
-| <img src="assets/" width="400"> | <img src="assets/" width="400"> |
+| <img src="assets/photos1.png" width="400"> | <img src="assets/" width="400"> |
 
 
 
