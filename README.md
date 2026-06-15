@@ -52,6 +52,6 @@ The firmware is written in **Wiring C / C++** and simulated on Arduino Uno board
 *   Resistors (10kΩ, 220Ω), LEDs, and Breadboard jumper wires.
 
 ## 👥 Contributors
-*   **Charisios Mousios**
-*   Kosmas Karagkoulas
-*   Konstantinos Dedousis
+*   **Charisios Mousios**: sirxarisios
+*   Kosmas Karagkoulas: KInvictusK
+*   Konstantinos Dedousis: dedoukwsta-cloud
