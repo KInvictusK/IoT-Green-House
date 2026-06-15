@@ -1,0 +1,220 @@
+#include <Wire.h>
+
+#include <LiquidCrystal_I2C.h>
+
+#include <IRremote.h>
+
+
+LiquidCrystal_I2C lcd(0x27, 16, 2); 
+
+
+const int tempPin = A2;        
+
+const int motorLeftPin = 4;    
+
+const int motorRightPin = 5;   
+
+
+const int btnPlus = 10;       
+
+const int btnSet = 11;         
+
+const int btnMinus = 12;       
+
+const int IR_RECEIVE_PIN = 2; // Το OUT στο Pin 2
+
+
+float currentTemp = 0.0;
+
+int targetTemp = 24;            
+
+bool setupMode = false;        
+
+
+unsigned long lastUpdate = 0;
+
+const long interval = 1000; 
+
+
+void setup() {
+
+  pinMode(motorLeftPin, OUTPUT);
+
+  pinMode(motorRightPin, OUTPUT);
+
+  
+
+  digitalWrite(motorLeftPin, LOW);
+
+  digitalWrite(motorRightPin, LOW);
+
+
+  pinMode(btnPlus, INPUT_PULLUP);
+
+  pinMode(btnSet, INPUT_PULLUP);
+
+  pinMode(btnMinus, INPUT_PULLUP);
+
+
+  Wire.begin();
+
+  lcd.init();
+
+  lcd.backlight();
+
+  lcd.clear();
+
+
+  IrReceiver.begin(IR_RECEIVE_PIN);
+
+}
+
+
+void loop() {
+
+  unsigned long currentMillis = millis();
+
+
+  if (IrReceiver.decode()) {
+
+    int cmd = IrReceiver.decodedIRData.command;
+
+
+    if (cmd == 0x09 || cmd == 4 || cmd == 16 || cmd == 70 || cmd == 0x46) { 
+
+      targetTemp--;
+
+      updateScreenImmediate();
+
+    }
+
+    else if (cmd == 0x0D || cmd == 6 || cmd == 17 || cmd == 21 || cmd == 0x15) { 
+
+      targetTemp++;
+
+      updateScreenImmediate();
+
+    }
+
+    
+
+    IrReceiver.resume(); 
+
+  }
+
+
+  if (digitalRead(btnSet) == LOW) {
+
+    setupMode = !setupMode; 
+
+    lcd.clear();            
+
+    delay(300); 
+
+  }
+
+
+  // 3. Λειτουργία Ρύθμισης (Setup Mode)
+
+  if (setupMode) {
+
+    bool changed = false;
+
+    if (digitalRead(btnPlus) == LOW) { targetTemp++; changed = true; delay(180); }
+
+    if (digitalRead(btnMinus) == LOW) { targetTemp--; changed = true; delay(180); }
+
+
+    if (changed || currentMillis - lastUpdate >= interval) {
+
+      lcd.setCursor(0, 0);
+
+      lcd.print("[SETTINGS MODE]");
+
+      lcd.setCursor(0, 1);
+
+      lcd.print("Set Temp: ");
+
+      lcd.print(targetTemp);
+
+      lcd.print(" C    ");    
+
+    }
+
+  } 
+
+  
+
+  else {
+
+    if (currentMillis - lastUpdate >= interval) {
+
+      lastUpdate = currentMillis; 
+
+
+      int rawVoltage = analogRead(tempPin);
+
+      float voltage = rawVoltage * (5.0 / 1023.0);
+
+      currentTemp = (voltage - 0.5) * 100.0;
+
+
+      updateScreenImmediate();
+
+
+      if (currentTemp < (targetTemp - 2)) {
+
+        digitalWrite(motorLeftPin, HIGH);  
+
+        digitalWrite(motorRightPin, LOW);   
+
+      } 
+
+      else if (currentTemp > (targetTemp + 2)) {
+
+        digitalWrite(motorLeftPin, LOW);   
+
+        digitalWrite(motorRightPin, HIGH); 
+
+      } 
+
+      else {
+
+        if(currentTemp >= targetTemp - 0.5 && currentTemp <= targetTemp + 0.5) {
+
+          digitalWrite(motorLeftPin, LOW);
+
+          digitalWrite(motorRightPin, LOW);
+
+        }
+
+      }
+
+    }
+
+  }
+
+}
+
+
+void updateScreenImmediate() {
+
+  lcd.setCursor(0, 0);
+
+  lcd.print("Current: ");
+
+  lcd.print(currentTemp, 1); 
+
+  lcd.print(" C  ");
+
+  
+
+  lcd.setCursor(0, 1);
+
+  lcd.print("Target : ");
+
+  lcd.print(targetTemp);
+
+  lcd.print(" C  ");
+
+}
