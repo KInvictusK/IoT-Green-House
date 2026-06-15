@@ -1,0 +1,53 @@
+int lightPin = A0;
+
+int leds[] = {2, 3, 4, 5, 6};
+
+
+void setup() {
+
+  for (int i = 0; i < 5; i++) {
+
+    pinMode(leds[i], OUTPUT);
+
+  }
+
+  Serial.begin(9600);
+
+}
+
+
+void loop() {
+
+  int lightVal = analogRead(lightPin);
+
+  Serial.print("Light: ");
+
+  Serial.println(lightVal);
+
+
+  if (lightVal < 700) {
+
+    for (int i = 0; i < 5; i++) {
+
+      digitalWrite(leds[i], HIGH);
+
+    }
+
+    Serial.println("LEDs: ON");
+
+  } else {
+
+    for (int i = 0; i < 5; i++) {
+
+      digitalWrite(leds[i], LOW);
+
+    }
+
+    Serial.println("LEDs: OFF");
+
+  }
+
+
+  delay(500);
+
+}
