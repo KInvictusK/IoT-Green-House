@@ -1,0 +1,80 @@
+#include <Wire.h> 
+
+#include <LiquidCrystal_I2C.h>
+
+
+const int gasPin = A1;     
+
+const int buzzerPin = 7;   
+
+const int threshold = 400; 
+
+
+LiquidCrystal_I2C lcd(0x27, 16, 2); 
+
+
+void setup() {
+
+  pinMode(buzzerPin, OUTPUT);
+
+  
+
+  Wire.begin(); 
+
+  lcd.init();
+
+  lcd.backlight();
+
+  
+
+  lcd.setCursor(0, 0);
+
+  lcd.print("Testing LCD...");
+
+  delay(1000);
+
+  lcd.clear();
+
+}
+
+
+void loop() {
+
+  int gasValue = analogRead(gasPin); 
+
+  
+
+  lcd.setCursor(0, 0);
+
+  lcd.print("Gas: ");
+
+  lcd.print(gasValue);
+
+  lcd.print("   "); 
+
+  
+
+  if (gasValue > threshold) {
+
+    lcd.setCursor(0, 1);
+
+    lcd.print("ALERT!          ");
+
+    tone(buzzerPin, 1500, 200); 
+
+    delay(400);
+
+  } else {
+
+    lcd.setCursor(0, 1);
+
+    lcd.print("Clean           ");
+
+    noTone(buzzerPin);
+
+    delay(500);
+
+  }
+
+}
+
